@@ -1,0 +1,31 @@
+import { MongoClient, MongoClientOptions } from 'mongodb';
+
+if (!process.env.MONGODB_URI) {
+    throw new Error('Please add your MongoDB URI to .env');
+}
+
+const uri = process.env.MONGODB_URI;
+const options: MongoClientOptions = {};
+
+let client: MongoClient;
+const clientPromise: Promise<MongoClient> = (() => {
+    declare global {
+        // eslint-disable-next-line no-var
+        var _mongoClientPromise: Promise<MongoClient> | undefined;
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+        // In development, use global variable to preserve value across module reloads
+        if (!globalThis._mongoClientPromise) {
+            client = new MongoClient(uri, options);
+            globalThis._mongoClientPromise = client.connect();
+        }
+        return globalThis._mongoClientPromise;
+    } else {
+        // In production, create a new client
+        client = new MongoClient(uri, options);
+        return client.connect();
+    }
+})();
+
+export default clientPromise;

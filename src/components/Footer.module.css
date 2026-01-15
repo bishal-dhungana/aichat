@@ -1,0 +1,23 @@
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    text-align: center;
+    background-color: var(--bg-primary);
+}
+
+.footer p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.footer a {
+    color: var(--text-secondary);
+    text-decoration: underline;
+}
+
+.footer a:hover {
+    color: var(--text-primary);
+}
