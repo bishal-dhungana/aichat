@@ -8,24 +8,24 @@ const uri = process.env.MONGODB_URI;
 const options: MongoClientOptions = {};
 
 let client: MongoClient;
-const clientPromise: Promise<MongoClient> = (() => {
-    declare global {
-        // eslint-disable-next-line no-var
-        var _mongoClientPromise: Promise<MongoClient> | undefined;
-    }
+let clientPromise: Promise<MongoClient>;
 
-    if (process.env.NODE_ENV === 'development') {
-        // In development, use global variable to preserve value across module reloads
-        if (!globalThis._mongoClientPromise) {
-            client = new MongoClient(uri, options);
-            globalThis._mongoClientPromise = client.connect();
-        }
-        return globalThis._mongoClientPromise;
-    } else {
-        // In production, create a new client
+declare global {
+    // eslint-disable-next-line no-var
+    var _mongoClientPromise: Promise<MongoClient> | undefined;
+}
+
+if (process.env.NODE_ENV === 'development') {
+    // In development, use global variable to preserve value across module reloads
+    if (!globalThis._mongoClientPromise) {
         client = new MongoClient(uri, options);
-        return client.connect();
+        globalThis._mongoClientPromise = client.connect();
     }
-})();
+    clientPromise = globalThis._mongoClientPromise;
+} else {
+    // In production, create a new client
+    client = new MongoClient(uri, options);
+    clientPromise = client.connect();
+}
 
 export default clientPromise;
